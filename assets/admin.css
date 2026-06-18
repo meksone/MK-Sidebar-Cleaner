@@ -1,0 +1,331 @@
+/* MK Sidebar Cleaner — admin UI styles */
+
+/* ---- Page ---- */
+.mksc-page { max-width: 1100px; }
+
+.mksc-page-title {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+.mksc-version {
+	font-size: 13px;
+	font-weight: normal;
+	color: #999;
+}
+
+/* ---- Tabs ---- */
+.mksc-tab-ts {
+	font-size: 11px;
+	color: #aaa;
+	margin-left: 4px;
+}
+
+.mksc-tab-panel {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-top: none;
+	padding: 20px 20px 16px;
+}
+.mksc-tab-desc {
+	margin: 0 0 16px;
+	color: #666;
+	font-size: 13px;
+}
+.mksc-saved-ts {
+	display: block;
+	color: #999;
+	font-size: 12px;
+	margin-top: 2px;
+}
+
+/* ---- Zones Layout Split ---- */
+.mksc-layout-split {
+	display: flex;
+	gap: 20px;
+	margin-bottom: 16px;
+	align-items: flex-start;
+}
+
+/* LEFT: Fixed width Main Sidebar */
+.mksc-main-board {
+	flex: 0 0 280px; /* Larghezza fissa */
+	max-width: 280px;
+}
+
+/* RIGHT: Horizontal scrollable board for destinations */
+.mksc-scrolling-board {
+	flex: 1 1 auto;
+	display: flex;
+	gap: 12px;
+	flex-wrap: nowrap; /* Non va MAI a capo */
+	overflow-x: scroll; /* Always show scrollbar for navigation between zones */
+	padding-bottom: 12px; /* Spazio per la scrollbar */
+	align-items: flex-start;
+}
+
+/* Hide webkit scrollbar visual bugs on some screens if needed, otherwise rely on system native scrollbar */
+.mksc-scrolling-board::-webkit-scrollbar {
+	height: 10px;
+}
+.mksc-scrolling-board::-webkit-scrollbar-thumb {
+	background: #c1c1c1;
+	border-radius: 5px;
+}
+.mksc-scrolling-board::-webkit-scrollbar-track {
+	background: #f1f1f1;
+}
+
+/* ---- Individual zone column ---- */
+.mksc-zone-col {
+	flex: 0 0 260px; /* Fixed width to prevent horizontal squashing */
+	min-width: 260px;
+	background: #f6f7f7;
+	border: 1px solid #ddd;
+	border-radius: 6px;
+	overflow: hidden;
+	transition: border-color .15s, background .15s;
+}
+.mksc-zone-col.mksc-drop-active {
+	border-color: #2271b1;
+	background: #f0f6fc;
+}
+
+.mksc-zone-header {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 10px;
+	background: #ebebeb;
+	border-bottom: 1px solid #ddd;
+	font-size: 12px;
+	font-weight: 600;
+	color: #3c434a;
+	line-height: 1.4;
+}
+.mksc-zone-col--custom .mksc-zone-header {
+	cursor: pointer;
+}
+.mksc-zone-header .dashicons {
+	font-size: 15px;
+	width: 15px;
+	height: 15px;
+	color: #666;
+	flex-shrink: 0;
+}
+.mksc-btn-delete-zone {
+	margin-left: auto;
+	background: none;
+	border: none;
+	cursor: pointer;
+	color: #aaa;
+	font-size: 13px;
+	line-height: 1;
+	padding: 0;
+}
+.mksc-btn-delete-zone:hover { color: #b32d2e; }
+
+
+/* ---- Sortable list ---- */
+.mksc-zone {
+	list-style: none;
+	margin: 0;
+	padding: 4px;
+	min-height: 46px;
+}
+.mksc-placeholder {
+	background: #ddeeff;
+	border: 2px dashed #2271b1;
+	border-radius: 4px;
+	margin: 2px 0;
+}
+
+/* ---- Menu item ---- */
+.mksc-item {
+	background: #fff;
+	border: 1px solid #e8e8e8;
+	border-radius: 4px;
+	margin: 2px 0;
+	font-size: 12px;
+	line-height: 1.4;
+	user-select: none;
+	cursor: default;
+	transition: opacity .15s;
+}
+.mksc-item:hover { border-color: #c3c4c7; }
+.mksc-item--hidden { opacity: 0.4; }
+
+/* Row: drag handle + pos badge + toggle + name + hide button */
+.mksc-item-row {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	padding: 5px 7px;
+}
+
+/* Pos badge */
+.mksc-item-pos-badge {
+	color: #999;
+	font-size: 10px;
+	font-family: monospace;
+	background: #f0f0f0;
+	padding: 1px 4px;
+	border-radius: 3px;
+	cursor: help;
+}
+
+/* Collapse toggle button */
+.mksc-toggle {
+	flex-shrink: 0;
+	background: none;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+	color: #aaa;
+	font-size: 9px;
+	line-height: 1;
+	width: 14px;
+	text-align: center;
+	transition: color .1s, transform .15s;
+}
+.mksc-toggle:hover { color: #2271b1; }
+.mksc-toggle--open { color: #2271b1; }
+.mksc-toggle-spacer { flex-shrink: 0; width: 14px; }
+
+/* Custom group items get a subtle accent */
+.mksc-item--custom-group {
+	border-left: 3px solid #2271b1;
+	background: #f9fbff;
+}
+
+.mksc-drag-handle {
+	cursor: grab;
+	color: #bbb;
+	font-size: 14px;
+	flex-shrink: 0;
+}
+.mksc-drag-handle:active { cursor: grabbing; }
+.ui-sortable-helper .mksc-drag-handle { cursor: grabbing; }
+
+.mksc-item-name {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: #1d2327;
+	cursor: text;
+}
+
+.mksc-hide-toggle {
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+	flex-shrink: 0;
+	opacity: 0.3;
+	transition: opacity .1s;
+}
+.mksc-hide-toggle:hover,
+.mksc-item--hidden .mksc-hide-toggle {
+	opacity: 1;
+}
+.mksc-hide-cb {
+	position: absolute;
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+.mksc-hide-icon { font-size: 13px; line-height: 1; }
+
+/* ---- Submenu list (read-only, collapsible) ---- */
+.mksc-subitems {
+	list-style: none;
+	margin: 0;
+	/* Horizontal padding is always present; vertical padding animated */
+	padding: 0 7px 0 30px;
+	border-top: 1px solid transparent;
+	/* Collapsed state — CSS owns this, JS removes the [hidden] attr on load */
+	overflow: hidden;
+	max-height: 0;
+	/* Closing: slightly faster */
+	transition:
+		max-height   0.25s ease,
+		padding      0.2s  ease,
+		border-color 0.2s  ease;
+}
+.mksc-subitems.is-open {
+	/* Opening: slightly slower for a more natural feel */
+	max-height: 1200px; /* upper bound larger than any real menu */
+	padding-top: 3px;
+	padding-bottom: 5px;
+	border-top-color: #f0f0f0;
+	transition:
+		max-height   0.35s ease,
+		padding      0.2s  ease,
+		border-color 0.2s  ease;
+}
+.mksc-subitem {
+	font-size: 11px;
+	color: #888;
+	padding: 2px 0;
+	position: relative;
+}
+.mksc-subitem::before {
+	content: "\2514"; /* └ */
+	position: absolute;
+	left: -13px;
+	color: #ccc;
+	font-size: 10px;
+}
+
+/* ---- Inline edit input ---- */
+.mksc-inline-edit {
+	width: 100%;
+	padding: 1px 4px;
+	border: 1px solid #2271b1;
+	border-radius: 3px;
+	font-size: 12px;
+	line-height: 1.4;
+	background: #fff;
+	color: #1d2327;
+	outline: none;
+	box-shadow: 0 0 0 1px #2271b1;
+}
+.mksc-inline-edit--header {
+	flex: 1;
+	font-weight: 600;
+	font-size: 12px;
+}
+
+/* Dragging ghost */
+.ui-sortable-helper {
+	box-shadow: 0 3px 10px rgba(0,0,0,.18);
+	transform: rotate(1deg);
+	opacity: .92 !important;
+	z-index: 9999;
+}
+
+/* ---- Add group button ---- */
+.mksc-add-zone-wrap {
+	align-self: flex-start;
+	padding-top: 30px; /* align with zone body, past the header */
+}
+
+/* ---- Form footer ---- */
+.mksc-form-footer {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+
+/* ---- Legend ---- */
+.mksc-legend {
+	margin-top: 20px;
+	background: #f6f7f7;
+	border: 1px solid #ddd;
+	border-radius: 6px;
+	padding: 12px 16px;
+	font-size: 13px;
+}
+.mksc-legend ul { margin: 6px 0 0 18px; }
+.mksc-legend li { margin-bottom: 3px; }
