@@ -1,5 +1,12 @@
 # Changelog — MK Sidebar Cleaner
 
+## [1.2.10] — 2026-06-19
+
+### Added
+- GitHub Updater: WP checks `meksone/mk-sidebar-cleaner` releases for updates via `pre_set_site_transient_update_plugins` and `plugins_api` filters
+- `.github/workflows/release.yml`: on published release, builds `mk-sidebar-cleaner.zip` and attaches to release asset
+- Plugin URI, Author URI, License header fields
+
 ## [1.2.9] — 2026-04-08
 
 ### Fixed

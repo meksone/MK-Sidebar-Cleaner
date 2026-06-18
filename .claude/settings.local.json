@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls \"C:\\\\Users\\\\meks0\\\\OneDrive - meksONE\\\\Desktop\\\\MK WP Folder Mod\" 2>&1)",
+      "Read(//c/Users/meks0/OneDrive - meksONE/Desktop/MK WP Folder Mod/**)",
+      "Bash(ls \"C:\\\\Users\\\\meks0\\\\OneDrive - meksONE\\\\Desktop\\\\MK WP Folder Mod\\\\.github\" 2>&1)",
+      "Read(//c/Users/meks0/OneDrive - meksONE/Desktop/MK WP Folder Mod/.github/**)"
+    ]
+  }
+}
