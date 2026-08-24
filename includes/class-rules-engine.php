@@ -4,7 +4,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Applies the saved config to the live WP admin menu globals.
  *
- * Execution order (priority 999, after all plugins register their menus):
+ * Execution order (lowest priority = last, after all plugins register their menus):
  *   1. Register any custom top-level groups
  *   2. Move items from top-level into submenu of a target
  *      → sub-items of the moved item are placed after it, visually indented
@@ -21,7 +21,7 @@ class MK_Sidebar_Cleaner_Rules_Engine {
 	}
 
 	public function hook(): void {
-		add_action( 'admin_menu', [ $this, 'apply' ], 999 );
+		add_action( 'admin_menu', [ $this, 'apply' ], PHP_INT_MAX );
 		add_action( 'admin_head', [ $this, 'admin_head_output' ] );
 	}
 
