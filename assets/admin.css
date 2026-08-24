@@ -229,7 +229,8 @@
 .mksc-item--hidden .mksc-hide-toggle {
 	opacity: 1;
 }
-.mksc-hide-cb {
+.mksc-hide-cb,
+.mksc-hide-sub-cb {
 	position: absolute;
 	opacity: 0;
 	width: 0;
@@ -265,6 +266,10 @@
 		border-color 0.2s  ease;
 }
 .mksc-subitem {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 5px;
 	font-size: 11px;
 	color: #888;
 	padding: 2px 0;
@@ -276,6 +281,15 @@
 	left: -13px;
 	color: #ccc;
 	font-size: 10px;
+}
+.mksc-subitem--hidden { opacity: 0.4; }
+.mksc-subitem .mksc-hide-toggle {
+	opacity: 0.3;
+	transition: opacity .1s;
+}
+.mksc-subitem .mksc-hide-toggle:hover,
+.mksc-subitem--hidden .mksc-hide-toggle {
+	opacity: 1;
 }
 
 /* ---- Inline edit input ---- */

@@ -144,6 +144,10 @@ jQuery( function ( $ ) {
 		$( this ).closest( '.mksc-item' ).toggleClass( 'mksc-item--hidden', this.checked );
 	} );
 
+	$( document ).on( 'change', '.mksc-hide-sub-cb', function () {
+		$( this ).closest( '.mksc-subitem' ).toggleClass( 'mksc-subitem--hidden', this.checked );
+	} );
+
 	// -----------------------------------------------------------------------
 	// Inline rename — double-click on item name to edit
 	// -----------------------------------------------------------------------
@@ -346,6 +350,7 @@ jQuery( function ( $ ) {
 
 		var state = {
 			hidden:        [],
+			hidden_sub:    {},  // parent_slug → [child_slug, ...]
 			moved:         {},
 			custom_groups: [],
 			renamed:       {},
@@ -388,6 +393,15 @@ jQuery( function ( $ ) {
 				var customName = $item.data( 'custom-name' );
 				if ( customName && customName !== origName ) {
 					state.renamed[ slug ] = customName;
+				}
+
+				// Collect hidden submenu items for this parent.
+				var hiddenSubs = [];
+				$item.find( '.mksc-hide-sub-cb:checked' ).each( function () {
+					hiddenSubs.push( $( this ).closest( '.mksc-subitem' ).data( 'slug' ) );
+				} );
+				if ( hiddenSubs.length ) {
+					state.hidden_sub[ slug ] = hiddenSubs;
 				}
 			} );
 		} );

@@ -165,6 +165,7 @@ class MK_Sidebar_Cleaner_Admin_Page {
 
 	private function render_form( string $scope, array $cfg, array $items ): void {
 		$hidden        = $cfg['hidden']        ?? [];
+		$hidden_sub    = $cfg['hidden_sub']    ?? [];
 		$moved         = $cfg['moved']         ?? [];
 		$renamed       = $cfg['renamed']       ?? [];
 		$custom_groups = $cfg['custom_groups'] ?? [];
@@ -186,6 +187,7 @@ class MK_Sidebar_Cleaner_Admin_Page {
 			}
 			$item['is_hidden']    = in_array( $item['slug'], $hidden, true );
 			$item['custom_name']  = $renamed[ $item['slug'] ] ?? '';
+			$item['hidden_children'] = $hidden_sub[ $item['slug'] ] ?? [];
 			$zone_items[ $target ][] = $item;
 		}
 
@@ -351,6 +353,7 @@ class MK_Sidebar_Cleaner_Admin_Page {
 		$display_name = ! empty( $item['custom_name'] ) ? $item['custom_name'] : $item['name'];
 		$children     = $item['children'] ?? [];
 		$has_children = ! empty( $children );
+		$hidden_children = $item['hidden_children'] ?? [];
 		?>
 		<li class="mksc-item<?= esc_attr( $extra_class ) ?>"
 		    data-slug="<?= esc_attr( $item['slug'] ) ?>"
@@ -374,9 +377,16 @@ class MK_Sidebar_Cleaner_Admin_Page {
 				</label>
 			</div>
 			<?php if ( $has_children ) : ?>
-			<ul class="mksc-subitems" hidden>
-				<?php foreach ( $children as $child_name ) : ?>
-				<li class="mksc-subitem"><?= esc_html( $child_name ) ?></li>
+			<ul class="mksc-subitems" data-parent-slug="<?= esc_attr( $item['slug'] ) ?>" hidden>
+				<?php foreach ( $children as $child ) : ?>
+				<?php $child_hidden = in_array( $child['slug'], $hidden_children, true ); ?>
+				<li class="mksc-subitem<?= $child_hidden ? ' mksc-subitem--hidden' : '' ?>" data-slug="<?= esc_attr( $child['slug'] ) ?>">
+					<span class="mksc-subitem-name"><?= esc_html( $child['name'] ) ?></span>
+					<label class="mksc-hide-toggle" title="<?php esc_attr_e( 'Hide this item', 'mk-sidebar-cleaner' ); ?>">
+						<input type="checkbox" class="mksc-hide-sub-cb"<?= $child_hidden ? ' checked' : '' ?>>
+						<span class="mksc-hide-icon">&#x1F6AB;</span>
+					</label>
+				</li>
 				<?php endforeach; ?>
 			</ul>
 			<?php endif; ?>
@@ -401,12 +411,13 @@ class MK_Sidebar_Cleaner_Admin_Page {
 				? admin_url( $slug )
 				: admin_url( 'admin.php?page=' . $slug );
 
-			// Attach first-level submenus as informational children (read-only in UI).
+			// Attach first-level submenus as children (name + slug, so each can be hidden individually).
 			$children = [];
 			foreach ( (array) ( $submenu[ $slug ] ?? [] ) as $sub ) {
 				$sub_name = wp_strip_all_tags( $sub[0] ?? '' );
-				if ( ! empty( $sub_name ) ) {
-					$children[] = $sub_name;
+				$sub_slug = $sub[2] ?? '';
+				if ( ! empty( $sub_name ) && $sub_slug !== '' ) {
+					$children[] = [ 'name' => $sub_name, 'slug' => $sub_slug ];
 				}
 			}
 

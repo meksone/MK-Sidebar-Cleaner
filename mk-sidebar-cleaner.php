@@ -3,7 +3,7 @@
  * Plugin Name: MK Sidebar Cleaner
  * Plugin URI:  https://github.com/meksone/mk-sidebar-cleaner
  * Description: Tidy up the WP admin sidebar. Hide or relocate items, create custom groups. Superadmin bypass, per-admin personal config, global default.
- * Version:     1.2.11
+ * Version:     1.2.12
  * Author:      Manuel Serrenti (meksONE)
  * Author URI:  https://meksone.com
  * License:     GPL-2.0+
@@ -12,7 +12,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'MKSC_VERSION', '1.2.11' );
+define( 'MKSC_VERSION', '1.2.12' );
 define( 'MKSC_GITHUB',  'meksone/mk-sidebar-cleaner' );
 define( 'MKSC_SLUG',    'mk-sidebar-cleaner/mk-sidebar-cleaner.php' );
 define( 'MKSC_DIR',     plugin_dir_path( __FILE__ ) );

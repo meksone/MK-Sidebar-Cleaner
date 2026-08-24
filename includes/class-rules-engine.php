@@ -50,6 +50,7 @@ class MK_Sidebar_Cleaner_Rules_Engine {
 		}
 
 		$this->register_custom_groups( $custom_groups );
+		$this->apply_hides_sub( $cfg['hidden_sub'] ?? [] );
 
 		$custom_slugs = array_column( $custom_groups, 'slug' );
 		$this->apply_moves( $moved, $custom_slugs );
@@ -374,6 +375,19 @@ class MK_Sidebar_Cleaner_Rules_Engine {
 	private function apply_hides( array $hidden ): void {
 		foreach ( $hidden as $slug ) {
 			remove_menu_page( $slug );
+		}
+	}
+
+	/**
+	 * Hides individual submenu items (e.g. under Settings/Tools). Must run
+	 * before apply_moves(), which flattens a moved parent's submenu into
+	 * $menu — hiding here first keeps hidden children out of that copy.
+	 */
+	private function apply_hides_sub( array $hidden_sub ): void {
+		foreach ( $hidden_sub as $parent_slug => $children ) {
+			foreach ( $children as $child_slug ) {
+				remove_submenu_page( $parent_slug, $child_slug );
+			}
 		}
 	}
 

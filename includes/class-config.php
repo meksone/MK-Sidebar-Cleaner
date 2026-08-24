@@ -7,6 +7,7 @@ defined( 'ABSPATH' ) || exit;
  * Config schema:
  * {
  *   hidden:        string[]          — slugs to remove from the sidebar
+ *   hidden_sub:    { [parent_slug]: string[] } — submenu slugs to remove, per parent
  *   moved:         { [slug]: target} — top-level slug → parent slug to nest under
  *   renamed:       { [slug]: name}   — slug → custom display name
  *   custom_groups: { slug, name, icon, position }[]
@@ -83,6 +84,14 @@ class MK_Sidebar_Cleaner_Config {
 			$moved[ sanitize_text_field( $src ) ] = sanitize_text_field( $tgt );
 		}
 
+		$hidden_sub = [];
+		foreach ( (array) ( $raw['hidden_sub'] ?? [] ) as $parent => $children ) {
+			$parent = sanitize_text_field( $parent );
+			$hidden_sub[ $parent ] = array_values( array_unique(
+				array_map( 'sanitize_text_field', (array) $children )
+			) );
+		}
+
 		$custom_groups = [];
 		foreach ( (array) ( $raw['custom_groups'] ?? [] ) as $g ) {
 			if ( empty( $g['slug'] ) || empty( $g['name'] ) ) continue;
@@ -111,6 +120,7 @@ class MK_Sidebar_Cleaner_Config {
 
 		return [
 			'hidden'        => array_values( array_unique( $hidden ) ),
+			'hidden_sub'    => $hidden_sub,
 			'moved'         => $moved,
 			'renamed'       => $renamed,
 			'custom_groups' => $custom_groups,
