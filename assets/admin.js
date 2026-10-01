@@ -349,12 +349,13 @@ jQuery( function ( $ ) {
 		var $container = $form.find( '.mksc-layout-split' );
 
 		var state = {
-			hidden:        [],
-			hidden_sub:    {},  // parent_slug → [child_slug, ...]
-			moved:         {},
-			custom_groups: [],
-			renamed:       {},
-			order:         {}   // zone_target → [slug, ...] in drag order
+			hidden:           [],
+			hidden_sub:       {},  // parent_slug → [child_slug, ...]
+			hidden_admin_bar: [],
+			moved:            {},
+			custom_groups:    [],
+			renamed:          {},
+			order:            {}   // zone_target → [slug, ...] in drag order
 		};
 
 		// Collect custom group metadata (position is now derived from Main Sidebar drag order).
@@ -404,6 +405,10 @@ jQuery( function ( $ ) {
 					state.hidden_sub[ slug ] = hiddenSubs;
 				}
 			} );
+		} );
+
+		$form.find( '.mksc-hide-admin-bar-cb:checked' ).each( function () {
+			state.hidden_admin_bar.push( $( this ).val() );
 		} );
 
 		$form.find( '#mksc-state-' + scope ).val( JSON.stringify( state ) );

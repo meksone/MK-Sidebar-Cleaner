@@ -23,6 +23,7 @@ class MK_Sidebar_Cleaner_Rules_Engine {
 	public function hook(): void {
 		add_action( 'admin_menu', [ $this, 'apply' ], PHP_INT_MAX );
 		add_action( 'admin_head', [ $this, 'admin_head_output' ] );
+		add_action( 'admin_bar_menu', [ $this, 'apply_admin_bar' ], PHP_INT_MAX );
 	}
 
 	public function apply(): void {
@@ -65,6 +66,22 @@ class MK_Sidebar_Cleaner_Rules_Engine {
 		);
 		$this->apply_hides( $hidden );
 		$this->apply_order( $cfg['order'] ?? [], $custom_slugs );
+	}
+
+	/**
+	 * Removes selected nodes from the wp-admin top toolbar (e.g. "WordPress
+	 * updates available", LiteSpeed Cache, Rank Math, etc.). Only top-level
+	 * toolbar nodes are supported — matches what the settings UI lists.
+	 */
+	public function apply_admin_bar( $wp_admin_bar ): void {
+		if ( ( $_GET['page'] ?? '' ) === MK_Sidebar_Cleaner_Config::PAGE_SLUG ) return;
+
+		$cfg = $this->config->get_active();
+		if ( empty( $cfg['hidden_admin_bar'] ) ) return;
+
+		foreach ( $cfg['hidden_admin_bar'] as $id ) {
+			$wp_admin_bar->remove_node( $id );
+		}
 	}
 
 	// -------------------------------------------------------------------------
