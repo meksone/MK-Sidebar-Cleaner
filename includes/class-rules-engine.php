@@ -23,8 +23,13 @@ class MK_Sidebar_Cleaner_Rules_Engine {
 	public function hook(): void {
 		add_action( 'admin_menu', [ $this, 'apply' ], PHP_INT_MAX );
 		add_action( 'admin_head', [ $this, 'admin_head_output' ] );
-		add_action( 'admin_bar_menu', [ $this, 'apply_admin_bar' ], PHP_INT_MAX );
-		add_action( 'admin_bar_menu', [ $this, 'snapshot_admin_bar_nodes' ], PHP_INT_MAX );
+
+		// Most plugins register their toolbar nodes on admin_bar_menu, but
+		// some (e.g. UpdraftPlus) use the later wp_before_admin_bar_render —
+		// hook both, at max priority, so removal/snapshotting sees everything.
+		add_action( 'admin_bar_menu',              [ $this, 'apply_admin_bar' ], PHP_INT_MAX );
+		add_action( 'wp_before_admin_bar_render',  [ $this, 'apply_admin_bar_late' ], PHP_INT_MAX );
+		add_action( 'wp_before_admin_bar_render',  [ $this, 'snapshot_admin_bar_nodes' ], PHP_INT_MAX );
 	}
 
 	public function apply(): void {
@@ -86,29 +91,31 @@ class MK_Sidebar_Cleaner_Rules_Engine {
 	}
 
 	/**
+	 * Same removal as apply_admin_bar(), run again on wp_before_admin_bar_render
+	 * to catch nodes added by plugins (e.g. UpdraftPlus) that hook that later
+	 * event instead of admin_bar_menu.
+	 */
+	public function apply_admin_bar_late(): void {
+		global $wp_admin_bar;
+		if ( ! is_object( $wp_admin_bar ) ) return;
+		$this->apply_admin_bar( $wp_admin_bar );
+	}
+
+	/**
 	 * Records every top-level admin bar node id/title into a transient so the
-	 * settings page (which renders before admin_bar_menu fires on its own
+	 * settings page (which renders before the toolbar is built on its own
 	 * load) can list them on the following page load.
 	 */
-	public function snapshot_admin_bar_nodes( $wp_admin_bar ): void {
+	public function snapshot_admin_bar_nodes(): void {
 		// Only snapshot from wp-admin page loads — the front-end toolbar for
 		// logged-in users registers far fewer nodes than the full wp-admin one.
 		if ( ! is_admin() ) return;
 
+		global $wp_admin_bar;
+		if ( ! is_object( $wp_admin_bar ) ) return;
+
 		$nodes = $wp_admin_bar->get_nodes();
 		if ( empty( $nodes ) ) return;
-
-		// TEMP DEBUG: full node dump (all parents) to diagnose a reported
-		// missing-node issue. Remove before merging to main.
-		$debug_all = [];
-		foreach ( $nodes as $node ) {
-			$debug_all[] = [
-				'id'     => $node->id,
-				'parent' => $node->parent,
-				'title'  => is_string( $node->title ?? null ) ? wp_strip_all_tags( $node->title ) : '[non-string]',
-			];
-		}
-		set_transient( 'mksc_debug_all_nodes', $debug_all, DAY_IN_SECONDS );
 
 		$snapshot = [];
 		foreach ( $nodes as $node ) {
