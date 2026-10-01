@@ -470,8 +470,9 @@ class MK_Sidebar_Cleaner_Admin_Page {
 
 		$items = [];
 		foreach ( $nodes as $node ) {
-			// Only top-level nodes (no parent) are supported for hiding.
-			if ( ! empty( $node->parent ) ) continue;
+			// Only top-level nodes are supported for hiding ("root" = WP's default parent for top-level items).
+			$parent = $node->parent ?? '';
+			if ( $parent !== '' && $parent !== 'root' ) continue;
 
 			$name = wp_strip_all_tags( $node->title ?? '' );
 			if ( $name === '' ) $name = $node->id;
