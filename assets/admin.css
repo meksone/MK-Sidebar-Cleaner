@@ -325,6 +325,38 @@
 	padding-top: 30px; /* align with zone body, past the header */
 }
 
+/* ---- Admin bar section ---- */
+.mksc-admin-bar-section {
+	margin-top: 20px;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+}
+.mksc-admin-bar-section .mksc-tab-desc {
+	padding: 0 10px;
+	margin: 10px 0;
+	color: #555;
+}
+.mksc-admin-bar-list {
+	margin: 0;
+	padding: 4px 10px 12px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px 18px;
+}
+.mksc-admin-bar-item {
+	flex: 0 0 auto;
+}
+.mksc-admin-bar-item label {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 13px;
+}
+.mksc-admin-bar-item code {
+	font-size: 11px;
+	color: #999;
+}
+
 /* ---- Form footer ---- */
 .mksc-form-footer {
 	display: flex;

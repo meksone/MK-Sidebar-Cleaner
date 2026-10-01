@@ -164,11 +164,12 @@ class MK_Sidebar_Cleaner_Admin_Page {
 	// -------------------------------------------------------------------------
 
 	private function render_form( string $scope, array $cfg, array $items ): void {
-		$hidden        = $cfg['hidden']        ?? [];
-		$hidden_sub    = $cfg['hidden_sub']    ?? [];
-		$moved         = $cfg['moved']         ?? [];
-		$renamed       = $cfg['renamed']       ?? [];
-		$custom_groups = $cfg['custom_groups'] ?? [];
+		$hidden           = $cfg['hidden']           ?? [];
+		$hidden_sub       = $cfg['hidden_sub']       ?? [];
+		$hidden_admin_bar = $cfg['hidden_admin_bar']  ?? [];
+		$moved            = $cfg['moved']            ?? [];
+		$renamed          = $cfg['renamed']          ?? [];
+		$custom_groups    = $cfg['custom_groups']    ?? [];
 
 		// Build a map of zone_target => items assigned to it.
 		$zone_items = [];
@@ -327,6 +328,33 @@ class MK_Sidebar_Cleaner_Admin_Page {
 
 			</div><!-- .mksc-layout-split -->
 
+			<div class="mksc-admin-bar-section">
+				<div class="mksc-zone-header">
+					<span class="dashicons dashicons-admin-generic"></span>
+					<?php esc_html_e( 'Top Bar (Admin Bar)', 'mk-sidebar-cleaner' ); ?>
+				</div>
+				<p class="mksc-tab-desc"><?php esc_html_e( 'Hide icons/items added by WordPress or plugins (e.g. updates, LiteSpeed Cache, Rank Math) to the admin toolbar at the very top of the screen.', 'mk-sidebar-cleaner' ); ?></p>
+				<?php $admin_bar_items = $this->admin_bar_items(); ?>
+				<?php if ( empty( $admin_bar_items ) ) : ?>
+				<p class="mksc-tab-desc"><em><?php esc_html_e( 'No admin bar items detected yet — visit any other wp-admin page once, then reload this page and the list will appear.', 'mk-sidebar-cleaner' ); ?></em></p>
+				<?php else : ?>
+				<ul class="mksc-admin-bar-list">
+					<?php foreach ( $admin_bar_items as $node ) : ?>
+					<li class="mksc-admin-bar-item">
+						<label>
+							<input type="checkbox"
+							       class="mksc-hide-admin-bar-cb"
+							       value="<?= esc_attr( $node['id'] ) ?>"
+							       <?= in_array( $node['id'], $hidden_admin_bar, true ) ? 'checked' : '' ?>>
+							<?= esc_html( $node['name'] ) ?>
+							<code><?= esc_html( $node['id'] ) ?></code>
+						</label>
+					</li>
+					<?php endforeach; ?>
+				</ul>
+				<?php endif; ?>
+			</div>
+
 			<div class="mksc-form-footer">
 				<button type="submit" class="button button-primary">
 					<?php echo $scope === 'default'
@@ -431,6 +459,21 @@ class MK_Sidebar_Cleaner_Admin_Page {
 		}
 		usort( $items, fn( $a, $b ) => $a['pos'] <=> $b['pos'] );
 		return $items;
+	}
+
+	/**
+	 * Returns the top-level admin bar (toolbar) nodes, e.g. the WordPress
+	 * logo, Updates, Comments, site name, My Account, and any node
+	 * third-party plugins register (LiteSpeed Cache, Rank Math, ...).
+	 *
+	 * Read from a transient snapshotted by MK_Sidebar_Cleaner_Rules_Engine
+	 * on admin_bar_menu — that hook fires in admin_footer, after this page's
+	 * body has already rendered, so the list reflects the previous page load
+	 * rather than the current one (empty only on the very first visit).
+	 */
+	private function admin_bar_items(): array {
+		$items = get_transient( 'mksc_admin_bar_nodes' );
+		return is_array( $items ) ? $items : [];
 	}
 
 	// -------------------------------------------------------------------------

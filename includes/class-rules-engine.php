@@ -23,6 +23,13 @@ class MK_Sidebar_Cleaner_Rules_Engine {
 	public function hook(): void {
 		add_action( 'admin_menu', [ $this, 'apply' ], PHP_INT_MAX );
 		add_action( 'admin_head', [ $this, 'admin_head_output' ] );
+
+		// Most plugins register their toolbar nodes on admin_bar_menu, but
+		// some (e.g. UpdraftPlus) use the later wp_before_admin_bar_render —
+		// hook both, at max priority, so removal/snapshotting sees everything.
+		add_action( 'admin_bar_menu',              [ $this, 'apply_admin_bar' ], PHP_INT_MAX );
+		add_action( 'wp_before_admin_bar_render',  [ $this, 'apply_admin_bar_late' ], PHP_INT_MAX );
+		add_action( 'wp_before_admin_bar_render',  [ $this, 'snapshot_admin_bar_nodes' ], PHP_INT_MAX );
 	}
 
 	public function apply(): void {
@@ -65,6 +72,65 @@ class MK_Sidebar_Cleaner_Rules_Engine {
 		);
 		$this->apply_hides( $hidden );
 		$this->apply_order( $cfg['order'] ?? [], $custom_slugs );
+	}
+
+	/**
+	 * Removes selected nodes from the wp-admin top toolbar (e.g. "WordPress
+	 * updates available", LiteSpeed Cache, Rank Math, etc.). Only top-level
+	 * toolbar nodes are supported — matches what the settings UI lists.
+	 */
+	public function apply_admin_bar( $wp_admin_bar ): void {
+		if ( ( $_GET['page'] ?? '' ) === MK_Sidebar_Cleaner_Config::PAGE_SLUG ) return;
+
+		$cfg = $this->config->get_active();
+		if ( empty( $cfg['hidden_admin_bar'] ) ) return;
+
+		foreach ( $cfg['hidden_admin_bar'] as $id ) {
+			$wp_admin_bar->remove_node( $id );
+		}
+	}
+
+	/**
+	 * Same removal as apply_admin_bar(), run again on wp_before_admin_bar_render
+	 * to catch nodes added by plugins (e.g. UpdraftPlus) that hook that later
+	 * event instead of admin_bar_menu.
+	 */
+	public function apply_admin_bar_late(): void {
+		global $wp_admin_bar;
+		if ( ! is_object( $wp_admin_bar ) ) return;
+		$this->apply_admin_bar( $wp_admin_bar );
+	}
+
+	/**
+	 * Records every top-level admin bar node id/title into a transient so the
+	 * settings page (which renders before the toolbar is built on its own
+	 * load) can list them on the following page load.
+	 */
+	public function snapshot_admin_bar_nodes(): void {
+		// Only snapshot from wp-admin page loads — the front-end toolbar for
+		// logged-in users registers far fewer nodes than the full wp-admin one.
+		if ( ! is_admin() ) return;
+
+		global $wp_admin_bar;
+		if ( ! is_object( $wp_admin_bar ) ) return;
+
+		$nodes = $wp_admin_bar->get_nodes();
+		if ( empty( $nodes ) ) return;
+
+		$snapshot = [];
+		foreach ( $nodes as $node ) {
+			// WP_Admin_Bar defaults 'parent' to false for top-level nodes
+			// (see WP_Admin_Bar::add_node()'s $defaults); some core nodes
+			// also use '' or 'root' explicitly — treat all three as top-level.
+			if ( ! empty( $node->parent ) && $node->parent !== 'root' ) continue;
+
+			$name = wp_strip_all_tags( $node->title ?? '' );
+			if ( $name === '' ) $name = $node->id;
+
+			$snapshot[] = [ 'id' => $node->id, 'name' => $name ];
+		}
+
+		set_transient( 'mksc_admin_bar_nodes', $snapshot, DAY_IN_SECONDS );
 	}
 
 	// -------------------------------------------------------------------------

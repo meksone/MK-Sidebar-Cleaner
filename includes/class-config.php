@@ -6,12 +6,13 @@ defined( 'ABSPATH' ) || exit;
  *
  * Config schema:
  * {
- *   hidden:        string[]          — slugs to remove from the sidebar
- *   hidden_sub:    { [parent_slug]: string[] } — submenu slugs to remove, per parent
- *   moved:         { [slug]: target} — top-level slug → parent slug to nest under
- *   renamed:       { [slug]: name}   — slug → custom display name
- *   custom_groups: { slug, name, icon, position }[]
- *   updated:       int               — unix timestamp
+ *   hidden:           string[]          — slugs to remove from the sidebar
+ *   hidden_sub:       { [parent_slug]: string[] } — submenu slugs to remove, per parent
+ *   hidden_admin_bar: string[]          — admin bar (toolbar) node ids to remove
+ *   moved:            { [slug]: target} — top-level slug → parent slug to nest under
+ *   renamed:          { [slug]: name}   — slug → custom display name
+ *   custom_groups:    { slug, name, icon, position }[]
+ *   updated:          int               — unix timestamp
  * }
  */
 class MK_Sidebar_Cleaner_Config {
@@ -79,6 +80,11 @@ class MK_Sidebar_Cleaner_Config {
 			$hidden[] = sanitize_text_field( $slug );
 		}
 
+		$hidden_admin_bar = [];
+		foreach ( (array) ( $raw['hidden_admin_bar'] ?? [] ) as $id ) {
+			$hidden_admin_bar[] = sanitize_text_field( $id );
+		}
+
 		$moved = [];
 		foreach ( (array) ( $raw['moved'] ?? [] ) as $src => $tgt ) {
 			$moved[ sanitize_text_field( $src ) ] = sanitize_text_field( $tgt );
@@ -119,12 +125,13 @@ class MK_Sidebar_Cleaner_Config {
 		}
 
 		return [
-			'hidden'        => array_values( array_unique( $hidden ) ),
-			'hidden_sub'    => $hidden_sub,
-			'moved'         => $moved,
-			'renamed'       => $renamed,
-			'custom_groups' => $custom_groups,
-			'order'         => $order,
+			'hidden'           => array_values( array_unique( $hidden ) ),
+			'hidden_sub'       => $hidden_sub,
+			'hidden_admin_bar' => array_values( array_unique( $hidden_admin_bar ) ),
+			'moved'            => $moved,
+			'renamed'          => $renamed,
+			'custom_groups'    => $custom_groups,
+			'order'            => $order,
 		];
 	}
 }
