@@ -96,8 +96,10 @@ class MK_Sidebar_Cleaner_Rules_Engine {
 
 		$snapshot = [];
 		foreach ( $nodes as $node ) {
-			$parent = $node->parent ?? '';
-			if ( $parent !== '' && $parent !== 'root' ) continue;
+			// WP_Admin_Bar defaults 'parent' to false for top-level nodes
+			// (see WP_Admin_Bar::add_node()'s $defaults); some core nodes
+			// also use '' or 'root' explicitly — treat all three as top-level.
+			if ( ! empty( $node->parent ) && $node->parent !== 'root' ) continue;
 
 			$name = wp_strip_all_tags( $node->title ?? '' );
 			if ( $name === '' ) $name = $node->id;
