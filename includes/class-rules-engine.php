@@ -24,6 +24,7 @@ class MK_Sidebar_Cleaner_Rules_Engine {
 		add_action( 'admin_menu', [ $this, 'apply' ], PHP_INT_MAX );
 		add_action( 'admin_head', [ $this, 'admin_head_output' ] );
 		add_action( 'admin_bar_menu', [ $this, 'apply_admin_bar' ], PHP_INT_MAX );
+		add_action( 'admin_bar_menu', [ $this, 'snapshot_admin_bar_nodes' ], PHP_INT_MAX );
 	}
 
 	public function apply(): void {
@@ -82,6 +83,29 @@ class MK_Sidebar_Cleaner_Rules_Engine {
 		foreach ( $cfg['hidden_admin_bar'] as $id ) {
 			$wp_admin_bar->remove_node( $id );
 		}
+	}
+
+	/**
+	 * Records every top-level admin bar node id/title into a transient so the
+	 * settings page (which renders before admin_bar_menu fires on its own
+	 * load) can list them on the following page load.
+	 */
+	public function snapshot_admin_bar_nodes( $wp_admin_bar ): void {
+		$nodes = $wp_admin_bar->get_nodes();
+		if ( empty( $nodes ) ) return;
+
+		$snapshot = [];
+		foreach ( $nodes as $node ) {
+			$parent = $node->parent ?? '';
+			if ( $parent !== '' && $parent !== 'root' ) continue;
+
+			$name = wp_strip_all_tags( $node->title ?? '' );
+			if ( $name === '' ) $name = $node->id;
+
+			$snapshot[] = [ 'id' => $node->id, 'name' => $name ];
+		}
+
+		set_transient( 'mksc_admin_bar_nodes', $snapshot, DAY_IN_SECONDS );
 	}
 
 	// -------------------------------------------------------------------------

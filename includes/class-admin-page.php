@@ -334,8 +334,12 @@ class MK_Sidebar_Cleaner_Admin_Page {
 					<?php esc_html_e( 'Top Bar (Admin Bar)', 'mk-sidebar-cleaner' ); ?>
 				</div>
 				<p class="mksc-tab-desc"><?php esc_html_e( 'Hide icons/items added by WordPress or plugins (e.g. updates, LiteSpeed Cache, Rank Math) to the admin toolbar at the very top of the screen.', 'mk-sidebar-cleaner' ); ?></p>
+				<?php $admin_bar_items = $this->admin_bar_items(); ?>
+				<?php if ( empty( $admin_bar_items ) ) : ?>
+				<p class="mksc-tab-desc"><em><?php esc_html_e( 'No admin bar items detected yet — reload this page once and the list will appear.', 'mk-sidebar-cleaner' ); ?></em></p>
+				<?php else : ?>
 				<ul class="mksc-admin-bar-list">
-					<?php foreach ( $this->admin_bar_items() as $node ) : ?>
+					<?php foreach ( $admin_bar_items as $node ) : ?>
 					<li class="mksc-admin-bar-item">
 						<label>
 							<input type="checkbox"
@@ -348,6 +352,7 @@ class MK_Sidebar_Cleaner_Admin_Page {
 					</li>
 					<?php endforeach; ?>
 				</ul>
+				<?php endif; ?>
 			</div>
 
 			<div class="mksc-form-footer">
@@ -457,29 +462,18 @@ class MK_Sidebar_Cleaner_Admin_Page {
 	}
 
 	/**
-	 * Returns the current top-level admin bar (toolbar) nodes, e.g. the
-	 * WordPress logo, Updates, Comments, site name, My Account, and any
-	 * node third-party plugins register (LiteSpeed Cache, Rank Math, ...).
+	 * Returns the top-level admin bar (toolbar) nodes, e.g. the WordPress
+	 * logo, Updates, Comments, site name, My Account, and any node
+	 * third-party plugins register (LiteSpeed Cache, Rank Math, ...).
+	 *
+	 * Read from a transient snapshotted by MK_Sidebar_Cleaner_Rules_Engine
+	 * on admin_bar_menu — that hook fires in admin_footer, after this page's
+	 * body has already rendered, so the list reflects the previous page load
+	 * rather than the current one (empty only on the very first visit).
 	 */
 	private function admin_bar_items(): array {
-		global $wp_admin_bar;
-		if ( ! is_object( $wp_admin_bar ) ) return [];
-
-		$nodes = $wp_admin_bar->get_nodes();
-		if ( empty( $nodes ) ) return [];
-
-		$items = [];
-		foreach ( $nodes as $node ) {
-			// Only top-level nodes are supported for hiding ("root" = WP's default parent for top-level items).
-			$parent = $node->parent ?? '';
-			if ( $parent !== '' && $parent !== 'root' ) continue;
-
-			$name = wp_strip_all_tags( $node->title ?? '' );
-			if ( $name === '' ) $name = $node->id;
-
-			$items[] = [ 'id' => $node->id, 'name' => $name ];
-		}
-		return $items;
+		$items = get_transient( 'mksc_admin_bar_nodes' );
+		return is_array( $items ) ? $items : [];
 	}
 
 	// -------------------------------------------------------------------------
