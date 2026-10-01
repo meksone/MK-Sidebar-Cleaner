@@ -98,6 +98,18 @@ class MK_Sidebar_Cleaner_Rules_Engine {
 		$nodes = $wp_admin_bar->get_nodes();
 		if ( empty( $nodes ) ) return;
 
+		// TEMP DEBUG: full node dump (all parents) to diagnose a reported
+		// missing-node issue. Remove before merging to main.
+		$debug_all = [];
+		foreach ( $nodes as $node ) {
+			$debug_all[] = [
+				'id'     => $node->id,
+				'parent' => $node->parent,
+				'title'  => is_string( $node->title ?? null ) ? wp_strip_all_tags( $node->title ) : '[non-string]',
+			];
+		}
+		set_transient( 'mksc_debug_all_nodes', $debug_all, DAY_IN_SECONDS );
+
 		$snapshot = [];
 		foreach ( $nodes as $node ) {
 			// WP_Admin_Bar defaults 'parent' to false for top-level nodes
