@@ -336,7 +336,7 @@ class MK_Sidebar_Cleaner_Admin_Page {
 				<p class="mksc-tab-desc"><?php esc_html_e( 'Hide icons/items added by WordPress or plugins (e.g. updates, LiteSpeed Cache, Rank Math) to the admin toolbar at the very top of the screen.', 'mk-sidebar-cleaner' ); ?></p>
 				<?php $admin_bar_items = $this->admin_bar_items(); ?>
 				<?php if ( empty( $admin_bar_items ) ) : ?>
-				<p class="mksc-tab-desc"><em><?php esc_html_e( 'No admin bar items detected yet — reload this page once and the list will appear.', 'mk-sidebar-cleaner' ); ?></em></p>
+				<p class="mksc-tab-desc"><em><?php esc_html_e( 'No admin bar items detected yet — visit any other wp-admin page once, then reload this page and the list will appear.', 'mk-sidebar-cleaner' ); ?></em></p>
 				<?php else : ?>
 				<ul class="mksc-admin-bar-list">
 					<?php foreach ( $admin_bar_items as $node ) : ?>

@@ -91,6 +91,10 @@ class MK_Sidebar_Cleaner_Rules_Engine {
 	 * load) can list them on the following page load.
 	 */
 	public function snapshot_admin_bar_nodes( $wp_admin_bar ): void {
+		// Only snapshot from wp-admin page loads — the front-end toolbar for
+		// logged-in users registers far fewer nodes than the full wp-admin one.
+		if ( ! is_admin() ) return;
+
 		$nodes = $wp_admin_bar->get_nodes();
 		if ( empty( $nodes ) ) return;
 
